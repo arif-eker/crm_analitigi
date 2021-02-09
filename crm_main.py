@@ -19,3 +19,18 @@ def timer(title):
     t0 = time.time()
     yield
     print("{} - done in {:.0f}s".format(title, time.time() - t0))
+
+
+
+
+
+if __name__ == "__main__":
+    namespace = hlp.get_namespace()
+
+    with timer("Full model run"):
+
+        schedule.every(45).minutes.do(main)
+
+        while 1:
+            schedule.run_pending()
+            time.sleep(1)
