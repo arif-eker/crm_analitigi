@@ -1,4 +1,3 @@
-
 import schedule
 
 from scripts import helpers as hlp
@@ -13,13 +12,11 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 pd.set_option('display.expand_frame_repr', False)
 
 
-
 @contextmanager
 def timer(title):
     t0 = time.time()
     yield
     print("{} - done in {:.0f}s".format(title, time.time() - t0))
-
 
 
 def main(debug=False):
@@ -74,8 +71,6 @@ def main(debug=False):
         crm_final = rfm_cltv_c.merge(rfm_cltv_p, on="Customer ID", how="left")
         print("İlk 5 Gözlem : \n", crm_final.head())
         gc.collect()
-
-
 
 
 if __name__ == "__main__":
