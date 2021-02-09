@@ -100,3 +100,37 @@ def create_rfm(dataframe):
     rfm['rfm_segment'] = rfm['rfm_segment'].replace(seg_map, regex=True)
     rfm = rfm[["recency", "frequency", "monetary", "rfm_segment"]]
     return rfm
+
+
+
+def create_cltv_c(dataframe):
+    # avg_order_value
+    dataframe['avg_order_value'] = dataframe['monetary'] / dataframe['frequency']
+
+    # purchase_frequency
+    dataframe["purchase_frequency"] = dataframe['frequency'] / dataframe.shape[0]
+
+    # repeat rate & churn rate
+    repeat_rate = dataframe[dataframe.frequency > 1].shape[0] / dataframe.shape[0]
+    churn_rate = 1 - repeat_rate
+
+    # profit_margin
+    dataframe['profit_value'] = dataframe['monetary'] * 0.05
+
+    # Customer Value
+    dataframe['cv'] = (dataframe['avg_order_value'] * dataframe["purchase_frequency"])
+
+    # Customer Lifetime Value
+    dataframe['cltv'] = (dataframe['cv'] / churn_rate) * dataframe['profit_value']
+
+    # minmaxscaler
+    scaler = MinMaxScaler(feature_range=(1, 100))
+    scaler.fit(dataframe[["cltv"]])
+    dataframe["cltv_c"] = scaler.transform(dataframe[["cltv"]])
+
+    dataframe["cltv_c_segment"] = pd.qcut(dataframe["cltv_c"], 3, labels=["C", "B", "A"])
+
+    dataframe = dataframe[["recency", "frequency", "monetary", "rfm_segment",
+                           "cltv_c", "cltv_c_segment"]]
+
+    return dataframe
