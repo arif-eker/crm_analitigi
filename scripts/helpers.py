@@ -43,3 +43,19 @@ def replace_with_thresholds(dataframe, variable):
     low_limit, up_limit = outlier_thresholds(dataframe, variable)
     # dataframe.loc[(dataframe[variable] < low_limit), variable] = low_limit
     dataframe.loc[(dataframe[variable] > up_limit), variable] = up_limit
+
+
+
+def crm_data_prep(dataframe):
+    dataframe.dropna(axis=0, inplace=True)
+    dataframe = dataframe[~dataframe["Invoice"].str.startswith("C", na=False)]
+    dataframe = dataframe[dataframe["Quantity"] > 0]
+    replace_with_thresholds(dataframe, "Quantity")
+    replace_with_thresholds(dataframe, "Price")
+    dataframe["TotalPrice"] = dataframe["Quantity"] * dataframe["Price"]
+    return dataframe
+
+
+def create_invoice_product_df(dataframe):
+    return dataframe.groupby(['Invoice', 'StockCode'])['Quantity'].sum().unstack().fillna(0). \
+        applymap(lambda x: 1 if x > 0 else 0)
